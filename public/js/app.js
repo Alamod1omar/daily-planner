@@ -273,50 +273,51 @@ function renderScheduleView() {
     for (let i = 0; i < 24; i++) {
         const hour = i.toString().padStart(2, '0') + ':00';
         const tasksInHour = todayTasks.filter(t => {
-            const startHour = parseInt(t.start_time.split(':')[0]);
-            const endHour = parseInt(t.end_time.split(':')[0]);
-            const endMin = parseInt(t.end_time.split(':')[1]);
-
-            let lastHour = endHour;
-            if (endMin === 0) lastHour--;
-
-            return i >= startHour && i <= lastHour;
+            const startH = parseInt(t.start_time.split(':')[0]);
+            const endH = parseInt(t.end_time.split(':')[0]);
+            const endM = parseInt(t.end_time.split(':')[1]);
+            let lastH = endH;
+            if (endM === 0) lastH--;
+            return i >= startH && i <= lastH;
         });
 
         html += `
             <div class="timeline-hour" style="color: #64748b; font-weight: 600; padding: 1.5rem 0; border-top: 1px solid var(--border-light); font-size: 0.85rem;">${hour}</div>
-            <div class="timeline-slot" style="padding: 0; border-top: 1px solid var(--border-light); min-height: 80px; position: relative; display: flex; flex-direction: column;">
+            <div class="timeline-slot" style="padding: 0; border-top: 1px solid var(--border-light); min-height: 80px; position: relative; display: flex; flex-direction: column; align-items: stretch;">
                 ${tasksInHour.map(t => {
-            const startHour = parseInt(t.start_time.split(':')[0]);
-            const endHour = parseInt(t.end_time.split(':')[0]);
-            const endMin = parseInt(t.end_time.split(':')[1]);
-            let lastHour = endHour;
-            if (endMin === 0) lastHour--;
+            const startH = parseInt(t.start_time.split(':')[0]);
+            const endH = parseInt(t.end_time.split(':')[0]);
+            const endM = parseInt(t.end_time.split(':')[1]);
+            let lastH = endH;
+            if (endM === 0) lastH--;
 
-            const isStart = i === startHour;
-            const isEnd = i === lastHour;
-            const isMid = i > startHour && i < lastHour;
+            const isStart = i === startH;
+            const isEnd = i === lastH;
+            const isMid = i > startH && i < lastH;
 
-            let style = `padding: 0.8rem; border-left: 5px solid var(--category-${t.category.toLowerCase()}); background: rgba(255,255,255,0.85); margin: 0 0.5rem; flex: 1; position: relative;`;
+            const baseBg = isDarkMode ? 'rgba(30, 41, 59, 0.95)' : 'rgba(255, 255, 255, 0.98)';
+            const borderCol = `var(--category-${t.category.toLowerCase()})`;
+
+            let style = `padding: 0.8rem; border-left: 5px solid ${borderCol}; background: ${baseBg}; margin: 0 0.5rem; flex: 1; position: relative;`;
 
             if (isStart && !isEnd) {
-                style += `border-radius: 0.8rem 0.8rem 0 0; margin-top: 0.8rem; margin-bottom: 0; border-bottom: none;`;
+                style += `border-radius: 0.8rem 0.8rem 0 0; margin-top: 10px; z-index: 10;`;
             } else if (isMid) {
-                style += `border-radius: 0; border-top: none; border-bottom: none; margin-top: 0; margin-bottom: 0;`;
+                style += `border-radius: 0; margin-top: -1px; z-index: 5;`;
             } else if (isEnd && !isStart) {
-                style += `border-radius: 0 0 0.8rem 0.8rem; margin-bottom: 0.8rem; margin-top: 0; border-top: none;`;
+                style += `border-radius: 0 0 0.8rem 0.8rem; margin-bottom: 10px; margin-top: -1px; z-index: 5;`;
             } else if (isStart && isEnd) {
-                style += `border-radius: 0.8rem; margin: 0.8rem 0.5rem;`;
+                style += `border-radius: 0.8rem; margin: 10px 0.5rem; z-index: 10;`;
             }
 
             return `
-                        <div class="timeline-task category-${t.category}" onclick="editTask(${t.id})" style="${style} box-shadow: 2px 0 10px rgba(0,0,0,0.03); cursor: pointer;">
+                        <div class="timeline-task category-${t.category}" onclick="editTask(${t.id})" style="${style} box-shadow: 2px 0 10px rgba(0,0,0,0.05); cursor: pointer;">
                             ${isStart ? `
-                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--category-${t.category.toLowerCase()});">${t.start_time} - ${t.end_time}</div>
-                                <div style="font-weight: 600; color: var(--text-light);">${t.title}</div>
+                                <div style="font-weight: 700; font-size: 0.85rem; color: ${borderCol};">${t.start_time} - ${t.end_time}</div>
+                                <div style="font-weight: 600; color: ${isDarkMode ? 'var(--text-dark)' : 'var(--text-light)'};">${t.title}</div>
                                 ${t.notes ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">${t.notes}</div>` : ''}
                             ` : `
-                                <div style="color: var(--category-${t.category.toLowerCase()}); font-size: 0.75rem; opacity: 0.5; font-weight: 600;">(cont...)</div>
+                                <div style="color: ${borderCol}; font-size: 0.75rem; opacity: 0.5; font-weight: 600;">(cont...)</div>
                             `}
                         </div>
                     `;
@@ -328,17 +329,13 @@ function renderScheduleView() {
     html += `</div></div>`;
     scheduleView.innerHTML = html;
 
-    if (document.body.classList.contains('dark-mode')) {
+    if (isDarkMode) {
         const container = scheduleView.querySelector('.timeline-container');
         if (container) {
             container.style.background = 'var(--card-dark)';
             container.style.borderColor = 'var(--border-dark)';
-            const tasksDisplay = container.querySelectorAll('.timeline-task');
-            tasksDisplay.forEach(t => {
-                t.style.background = 'rgba(0,0,0,0.2)';
-                const title = t.querySelector('div:nth-child(2)');
-                if (title) title.style.color = 'var(--text-dark)';
-            });
+            const slots = container.querySelectorAll('.timeline-hour, .timeline-slot');
+            slots.forEach(s => s.style.borderColor = 'var(--border-dark)');
         }
     }
 }
