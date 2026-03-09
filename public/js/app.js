@@ -267,26 +267,60 @@ function renderScheduleView() {
     let html = `
         <div class="timeline-container" style="background: var(--card-light); border-radius: 1.5rem; padding: 2rem; border: 1px solid var(--border-light); margin-bottom: 2rem;">
             <h2 style="margin-bottom: 2rem;">Today's Timeline</h2>
-            <div class="timeline-grid" style="display: grid; grid-template-columns: 80px 1fr; gap: 1rem;">
+            <div class="timeline-grid" style="display: grid; grid-template-columns: 80px 1fr; column-gap: 1rem; row-gap: 0;">
     `;
 
     for (let i = 0; i < 24; i++) {
         const hour = i.toString().padStart(2, '0') + ':00';
         const tasksInHour = todayTasks.filter(t => {
             const startHour = parseInt(t.start_time.split(':')[0]);
-            return startHour === i;
+            const endHour = parseInt(t.end_time.split(':')[0]);
+            const endMin = parseInt(t.end_time.split(':')[1]);
+
+            let lastHour = endHour;
+            if (endMin === 0) lastHour--;
+
+            return i >= startHour && i <= lastHour;
         });
 
         html += `
-            <div class="timeline-hour" style="color: #64748b; font-weight: 600; padding: 1rem 0; border-top: 1px solid var(--border-light); font-size: 0.85rem;">${hour}</div>
-            <div class="timeline-slot" style="padding: 1rem 0; border-top: 1px solid var(--border-light); min-height: 80px; position: relative;">
-                ${tasksInHour.map(t => `
-                    <div class="timeline-task category-${t.category}" style="padding: 0.8rem; border-radius: 0.8rem; margin-bottom: 0.6rem; border-left: 5px solid var(--category-${t.category.toLowerCase()}); box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); background: rgba(255,255,255,0.5);">
-                        <div style="font-weight: 700; font-size: 0.85rem; color: var(--category-${t.category.toLowerCase()});">${t.start_time} - ${t.end_time}</div>
-                        <div style="font-weight: 600; color: var(--text-light);">${t.title}</div>
-                        ${t.notes ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">${t.notes}</div>` : ''}
-                    </div>
-                `).join('')}
+            <div class="timeline-hour" style="color: #64748b; font-weight: 600; padding: 1.5rem 0; border-top: 1px solid var(--border-light); font-size: 0.85rem;">${hour}</div>
+            <div class="timeline-slot" style="padding: 0; border-top: 1px solid var(--border-light); min-height: 80px; position: relative; display: flex; flex-direction: column;">
+                ${tasksInHour.map(t => {
+            const startHour = parseInt(t.start_time.split(':')[0]);
+            const endHour = parseInt(t.end_time.split(':')[0]);
+            const endMin = parseInt(t.end_time.split(':')[1]);
+            let lastHour = endHour;
+            if (endMin === 0) lastHour--;
+
+            const isStart = i === startHour;
+            const isEnd = i === lastHour;
+            const isMid = i > startHour && i < lastHour;
+
+            let style = `padding: 0.8rem; border-left: 5px solid var(--category-${t.category.toLowerCase()}); background: rgba(255,255,255,0.85); margin: 0 0.5rem; flex: 1; position: relative;`;
+
+            if (isStart && !isEnd) {
+                style += `border-radius: 0.8rem 0.8rem 0 0; margin-top: 0.8rem; margin-bottom: 0; border-bottom: none;`;
+            } else if (isMid) {
+                style += `border-radius: 0; border-top: none; border-bottom: none; margin-top: 0; margin-bottom: 0;`;
+            } else if (isEnd && !isStart) {
+                style += `border-radius: 0 0 0.8rem 0.8rem; margin-bottom: 0.8rem; margin-top: 0; border-top: none;`;
+            } else if (isStart && isEnd) {
+                style += `border-radius: 0.8rem; margin: 0.8rem 0.5rem;`;
+            }
+
+            return `
+                        <div class="timeline-task category-${t.category}" onclick="editTask(${t.id})" style="${style} box-shadow: 2px 0 10px rgba(0,0,0,0.03); cursor: pointer;">
+                            ${isStart ? `
+                                <div style="font-weight: 700; font-size: 0.85rem; color: var(--category-${t.category.toLowerCase()});">${t.start_time} - ${t.end_time}</div>
+                                <div style="font-weight: 600; color: var(--text-light);">${t.title}</div>
+                                ${t.notes ? `<div style="font-size: 0.8rem; color: #64748b; margin-top: 0.25rem;">${t.notes}</div>` : ''}
+                            ` : `
+                                <div style="color: var(--category-${t.category.toLowerCase()}); font-size: 0.75rem; opacity: 0.5; font-weight: 600;">(cont...)</div>
+                            `}
+                        </div>
+                    `;
+        }).join('')}
             </div>
         `;
     }
