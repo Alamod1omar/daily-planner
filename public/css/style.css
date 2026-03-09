@@ -512,3 +512,42 @@ header {
     overflow-y: auto;
     max-height: 80px;
 }
+
+@media (max-width: 768px) {
+    .calendar-grid.monthly {
+        grid-template-columns: 1fr !important;
+        gap: 10px;
+        background: transparent;
+        border: none;
+    }
+
+    .calendar-grid.monthly .day-header,
+    .calendar-grid.monthly .day-spacer {
+        display: none;
+    }
+
+    .calendar-grid.monthly .calendar-day {
+        min-height: auto !important;
+        padding: 1.25rem;
+        border: 1px solid var(--border-light);
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        gap: 1.5rem;
+    }
+
+    .dark-mode .calendar-grid.monthly .calendar-day {
+        border-color: var(--border-dark);
+    }
+
+    .calendar-grid.monthly .day-number {
+        font-size: 1.5rem;
+        min-width: 40px;
+        color: var(--primary);
+    }
+
+    .calendar-grid.monthly .calendar-tasks {
+        max-height: none;
+        overflow: visible;
+    }
+}

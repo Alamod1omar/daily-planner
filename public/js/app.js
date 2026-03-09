@@ -384,6 +384,7 @@ function renderMonthlyView() {
     monthlyView.style.display = 'block';
 
     const grid = document.getElementById('monthlyGrid');
+    grid.className = 'calendar-grid monthly';
     grid.innerHTML = '';
 
     const now = new Date();
@@ -393,6 +394,7 @@ function renderMonthlyView() {
     const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
     days.forEach(d => {
         const h = document.createElement('div');
+        h.className = 'day-header';
         h.style.fontWeight = 'bold';
         h.style.textAlign = 'center';
         h.style.padding = '10px';
@@ -404,24 +406,30 @@ function renderMonthlyView() {
     const daysInMonth = new Date(year, month + 1, 0).getDate();
 
     for (let i = 0; i < firstDay; i++) {
-        grid.appendChild(document.createElement('div'));
+        const spacer = document.createElement('div');
+        spacer.className = 'day-spacer';
+        grid.appendChild(spacer);
     }
 
     for (let d = 1; d <= daysInMonth; d++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
         const dayTasks = getTasksForDate(dateStr);
+        const dayName = new Date(year, month, d).toLocaleDateString('en-US', { weekday: 'short' });
 
         const dayEl = document.createElement('div');
         dayEl.className = 'calendar-day';
-        dayEl.style.minHeight = '100px';
         dayEl.innerHTML = `
-            <div style="font-weight: bold; margin-bottom: 5px;">${d}</div>
-            <div class="calendar-tasks">
-                ${dayTasks.map(t => `
-                    <div style="font-size: 0.6rem; padding: 2px; margin-bottom: 2px; border-left: 2px solid var(--category-${t.category.toLowerCase()}); background: var(--category-${t.category.toLowerCase()})11; overflow: hidden; white-space: nowrap; text-overflow: ellipsis;" title="${t.title}">
-                        ${t.title}
+            <div class="day-number" style="font-weight: bold; margin-bottom: 8px; border-bottom: 1px solid var(--border-light); padding-bottom: 5px; display: flex; align-items: baseline; gap: 8px;">
+                <span style="color: var(--primary); font-size: 0.75rem; text-transform: uppercase; font-weight: 800;">${dayName}</span>
+                <span style="font-size: 1.1rem;">${d}</span>
+            </div>
+            <div class="calendar-tasks" style="flex: 1; max-height: 150px; overflow-y: auto;">
+                ${dayTasks.length > 0 ? dayTasks.map(t => `
+                    <div style="font-size: 0.8rem; padding: 6px 10px; margin-bottom: 5px; border-left: 3px solid var(--category-${t.category.toLowerCase()}); background: var(--category-${t.category.toLowerCase()})11; border-radius: 4px; color: var(--text-light); display: flex; justify-content: space-between; align-items: center;" title="${t.title}">
+                        <span style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${t.title}</span>
+                        <span style="font-size: 0.7rem; opacity: 0.7; margin-left: 8px;">${t.start_time}</span>
                     </div>
-                `).join('')}
+                `).join('') : '<div style="font-size: 0.75rem; color: #94a3b8; font-style: italic;">No tasks</div>'}
             </div>
         `;
         grid.appendChild(dayEl);
