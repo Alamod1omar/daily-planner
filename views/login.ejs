@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Daily Planner</title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <h2>Daily Planner</h2>
+            <p style="margin-bottom: 2rem; color: #64748b;">Sign in to manage your day</p>
+            <form id="loginForm">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" id="username" name="username" placeholder="Enter username" required>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" name="password" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Login</button>
+            </form>
+            <div id="loginMessage" style="margin-top: 1rem; font-size: 0.9rem;"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const username = e.target.username.value;
+            const password = e.target.password.value;
+            const messageDiv = document.getElementById('loginMessage');
+
+            try {
+                const response = await fetch('/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, password })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    messageDiv.style.color = 'var(--success)';
+                    messageDiv.textContent = data.message;
+                    setTimeout(() => window.location.href = '/', 1000);
+                } else {
+                    messageDiv.style.color = 'var(--danger)';
+                    messageDiv.textContent = data.message;
+                }
+            } catch (error) {
+                messageDiv.style.color = 'var(--danger)';
+                messageDiv.textContent = 'Server error. Please try again.';
+            }
+        });
+    </script>
+</body>
+</html>

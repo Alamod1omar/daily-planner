@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Daily Planner</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+
+<body>
+    <div class="app-container">
+        <header>
+            <div class="logo">
+                <h1>Daily Planner</h1>
+                <p id="currentDateTime" style="font-size: 0.9rem; color: #64748b; font-weight: 500;"></p>
+            </div>
+            <div class="header-actions">
+                <button id="themeToggle" class="btn-icon" title="Toggle Light/Dark Mode">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+                <button id="logoutBtn" class="btn-icon" title="Logout">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+                <button id="addTaskBtn" class="btn btn-primary" style="width: auto;">
+                    <i class="fa-solid fa-plus"></i> New Task
+                </button>
+            </div>
+        </header>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Current Task</div>
+                <div id="currentTaskDisplay" class="stat-value">No active task</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Next Upcoming</div>
+                <div id="nextTaskDisplay" class="stat-value">No upcoming tasks</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">Daily Progress</div>
+                <div id="progressText" class="stat-value">0%</div>
+                <div class="progress-container">
+                    <div id="progressBar" class="progress-bar"></div>
+                </div>
+            </div>
+        </section>
+
+        <div class="view-tabs">
+            <button class="tab-btn active" data-view="all">Today</button>
+            <button class="tab-btn" data-view="schedule">Timeline</button>
+            <button class="tab-btn" data-view="weekly">Weekly</button>
+            <button class="tab-btn" data-view="monthly">Monthly</button>
+        </div>
+
+        <main id="mainContent">
+            <!-- Task List View -->
+            <div id="listView" class="task-grid">
+                <!-- Tasks will be injected here -->
+            </div>
+
+            <!-- Timeline View -->
+            <div id="scheduleView" style="display: none;">
+                <!-- Timeline inject here -->
+            </div>
+
+            <!-- Weekly View -->
+            <div id="weeklyView" style="display: none;">
+                <div class="calendar-grid" id="calendarGrid">
+                    <!-- Calendar inject here -->
+                </div>
+            </div>
+
+            <!-- Monthly View -->
+            <div id="monthlyView" style="display: none;">
+                <div class="calendar-grid monthly" id="monthlyGrid" style="grid-template-columns: repeat(7, 1fr);">
+                    <!-- Monthly calendar inject here -->
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Modal -->
+    <div id="taskModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <h2 id="modalTitle">Add New Task</h2>
+            <form id="taskForm" style="margin-top: 1.5rem;">
+                <input type="hidden" id="taskId">
+                <div class="form-group">
+                    <label for="title">Task Title</label>
+                    <input type="text" id="title" name="title" placeholder="What needs to be done?" required>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="category">Category</label>
+                        <select id="category" name="category" required>
+                            <option value="Study">Study</option>
+                            <option value="Reading">Reading</option>
+                            <option value="English">English</option>
+                            <option value="Personal">Personal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="date">Start Date</label>
+                        <input type="date" id="date" name="date" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="start_time">Start Time</label>
+                        <input type="time" id="start_time" name="start_time" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="end_time">End Time</label>
+                        <input type="time" id="end_time" name="end_time" required>
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                    <div class="form-group">
+                        <label for="reminder_minutes">Reminder (min)</label>
+                        <input type="number" id="reminder_minutes" name="reminder_minutes" value="10" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="repeat_type">Repeat Pattern</label>
+                        <select id="repeat_type" name="repeat_type">
+                            <option value="none">None</option>
+                            <option value="days">Custom Days</option>
+                            <option value="daily">Daily</option>
+                            <option value="weekly">Weekly</option>
+                            <option value="monthly">Monthly</option>
+                        </select>
+                    </div>
+                </div>
+                <div id="repeat_value_group" class="form-group" style="display: none;">
+                    <label id="repeat_value_label" for="repeat_value">Number of Days</label>
+                    <input type="number" id="repeat_value" name="repeat_value" value="1" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="notes">Notes (Optional)</label>
+                    <textarea id="notes" name="notes" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Save Task</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Hidden audio for alerts -->
+    <audio id="alertSound" src="https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3"></audio>
+
+    <script src="/js/app.js"></script>
+</body>
+
+</html>
